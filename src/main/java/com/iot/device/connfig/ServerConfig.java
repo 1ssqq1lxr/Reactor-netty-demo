@@ -1,15 +1,16 @@
 package com.iot.device.connfig;
 
+import com.iot.device.domian.WaterBean;
 import com.iot.device.msi.Content;
-import com.iot.device.msi.Type;
-import com.iot.device.respository.WaterRespository;
+import com.iot.device.msi.Water;
+import com.iot.device.service.WaterService;
 import com.iot.device.transport.ConnectionConfig;
 import com.iot.device.transport.ServerTransport;
 import com.iot.device.transport.Transport;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import reactor.core.publisher.Flux;
 
 /**
  * @Auther: lxr
@@ -22,10 +23,10 @@ public class ServerConfig {
 
     private ConnectionConfig connectionConfi=  ConnectionConfig.builder().ip("localhost").port(1884).readWriteIdel(60000l).build();
 
-    private final WaterRespository waterRespository;
+    private final WaterService waterService;
 
-    public ServerConfig(WaterRespository waterRespository) {
-        this.waterRespository = waterRespository;
+    public ServerConfig(WaterService waterService) {
+        this.waterService = waterService;
     }
 
     @Bean
@@ -42,10 +43,21 @@ public class ServerConfig {
                       serverTransport.removeConnection(dulex).block();
                   }).block();
                   dulex.receiveMsg(Content.class)
-                          .filter(content -> content.getType().equals(Type.BJ))
+//                          .filter(content -> content.getType().equals(Type.BJ))
                           .subscribe(content -> {
-                                log.info("content:",content);
-                                // 存储
+                              log.info("content:",content);
+                                switch (content.getType()){
+                                    case BJ:
+                                        // 存储
+                                        Water water=content.getWater();
+                                        WaterBean bean = new WaterBean();
+                                        BeanUtils.copyProperties(water,bean);
+                                        waterService.save(bean);
+                                        break;
+                                    case _0103:
+                                        break;
+                                    case _0106:
+                                }
                           });
               });
          return  serverTransport;
