@@ -36,11 +36,11 @@ public class ServerConfig {
               .subscribe(dulex->{
                   dulex.onReadIdle(() ->()-> {
                       dulex.dispose(); // 关闭连接
-                      serverTransport.removeConnection(dulex).block(); // 移除存储connection
+                      serverTransport.removeConnection(dulex).subscribe(); // 移除存储connection
                   }).block();
                   dulex.onWriteIdle(() ->()-> {
                       dulex.dispose(); // 关闭连接
-                      serverTransport.removeConnection(dulex).block();
+                      serverTransport.removeConnection(dulex).subscribe();
                   }).block();
                   dulex.receiveMsg(Content.class)
 //                          .filter(content -> content.getType().equals(Type.BJ))
@@ -52,7 +52,7 @@ public class ServerConfig {
                                         Water water=content.getWater();
                                         WaterBean bean = new WaterBean();
                                         BeanUtils.copyProperties(water,bean);
-                                        waterService.save(bean);
+                                        waterService.save(bean).subscribe();
                                         break;
                                     case _0103:
                                         break;
