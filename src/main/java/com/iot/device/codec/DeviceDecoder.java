@@ -37,7 +37,7 @@ public class DeviceDecoder extends ByteToMessageDecoder {
                 byteBuf.readerIndex(i);
                 return;
             }
-            byte[] body=new byte[len];
+            byte[] body=new byte[len+1];
             byteBuf.readBytes(body);
             String bodyStr=new String(body);
             String[] params =bodyStr.split(",");
